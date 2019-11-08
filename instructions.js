@@ -11,9 +11,10 @@
 
 const path = require('path')
 
-async function copyVowFile (cli, appRoot) {
+async function copyVowFile (cli, appRoot, usesMigrations) {
+  const filename = usesMigrations ? 'vowfile.migrations.js' : 'vowfile.js'
   try {
-    await cli.copy(path.join(__dirname, 'templates/vowfile.js'), path.join(appRoot, 'vowfile.js'))
+    await cli.copy(path.join(__dirname, `templates/${filename}`), path.join(appRoot, 'vowfile.js'))
     cli.command.completed('create', 'vowfile.js')
   } catch (error) {
     // ignore error
@@ -41,8 +42,9 @@ async function copyEnvFile (cli, appRoot) {
 
 module.exports = async (cli) => {
   const appRoot = cli.helpers.appRoot()
+  const usesMigrations = await cli.command.confirm('Run database migrations for testing (change in vowfile.js)')
 
-  await copyVowFile(cli, appRoot)
+  await copyVowFile(cli, appRoot, usesMigrations)
   await copyExampleTestCase(cli, appRoot)
   await copyEnvFile(cli, appRoot)
 }
